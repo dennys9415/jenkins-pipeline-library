@@ -1,0 +1,79 @@
+// Node.js Pipeline Template
+@Library('jenkins-pipeline-library')_
+
+def builder = new org.company.PipelineBuilder(this)
+
+builder.forLanguage('nodejs')
+      .withQualityGates(true)
+      .withSecurityScan(true)
+      .withNotifications(true)
+      .withDocker(true)
+      .withParameters([
+          DEPLOY_ENV: [
+              type: 'choice',
+              choices: ['dev', 'staging', 'prod', 'none'],
+              description: 'Deployment environment'
+          ],
+          NODE_VERSION: [
+              type: 'choice',
+              choices: ['16', '18', '20'],
+              description: 'Node.js version'
+          ],
+          RUN_E2E_TESTS: [
+              type: 'boolean',
+              defaultValue: false,
+              description: 'Run end-to-end tests'
+          ]
+      ])
+      .addStage('Install Dependencies') {
+          echo "Installing dependencies"
+          sh 'npm ci'
+      }
+      .addStage('Lint and Format') {
+          echo "Running linting and formatting"
+          sh '''
+            npm run lint || npx eslint . --ext .js,.jsx,.ts,.tsx
+            npm run format:check || npx prettier --check .
+          '''
+      }
+      .addStage('Type Checking') {
+          when {
+              expression { fileExists('tsconfig.json') }
+          }
+          steps {
+              echo "Running TypeScript type checking"
+              sh 'npx tsc --noEmit'
+          }
+      }
+      .addStage('Security Audit') {
+          echo "Running security audit"
+          sh 'npm audit --audit-level high'
+      }
+      .addStage('Build') {
+          echo "Building application"
+          sh 'npm run build'
+      }
+      .addStage('Test') {
+          echo "Running tests"
+          sh 'npm test'
+      }
+      .addStage('E2E Tests') {
+          when {
+              expression { params.RUN_E2E_TESTS && fileExists('package.json') && 
+                          (sh(script: 'npm run | grep test:e2e', returnStatus: true) == 0) }
+          }
+          steps {
+              echo "Running end-to-end tests"
+              sh 'npm run test:e2e'
+          }
+      }
+      .addStage('Docker Build') {
+          echo "Building Docker image"
+          docker.buildAndPush(
+              image: "${env.JOB_NAME}",
+              tag: "${env.BUILD_NUMBER}",
+              dockerfile: 'Dockerfile',
+              push: true
+          )
+      }
+      .build()()

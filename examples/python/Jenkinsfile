@@ -1,0 +1,54 @@
+@Library('jenkins-pipeline-library')_
+
+// Python Pipeline Example
+def builder = new org.company.PipelineBuilder(this)
+
+builder.forLanguage('python')
+      .withQualityGates(true)
+      .withSecurityScan(true)
+      .withNotifications(true)
+      .withDocker(true)
+      .withParameters([
+          DEPLOY_ENV: [
+              type: 'choice',
+              choices: ['dev', 'staging', 'prod'],
+              description: 'Deployment environment'
+          ],
+          PYTHON_VERSION: [
+              type: 'choice',
+              choices: ['3.8', '3.9', '3.10', '3.11'],
+              description: 'Python version'
+          ]
+      ])
+      .addStage('Code Quality') {
+          echo "Running code quality checks"
+          sh '''
+            . venv/bin/activate
+            black --check .
+            isort --check-only .
+            flake8 .
+          '''
+      }
+      .addStage('Type Checking') {
+          echo "Running type checking"
+          sh '''
+            . venv/bin/activate
+            mypy .
+          '''
+      }
+      .addStage('Security Scan') {
+          echo "Running security scan"
+          sh '''
+            . venv/bin/activate
+            bandit -r .
+            safety check
+          '''
+      }
+      .addStage('Documentation') {
+          echo "Generating documentation"
+          sh '''
+            . venv/bin/activate
+            sphinx-build -b html docs/source docs/build
+          '''
+      }
+      .build()()

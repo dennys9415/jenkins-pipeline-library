@@ -1,0 +1,75 @@
+// Maven Pipeline Template
+@Library('jenkins-pipeline-library')_
+
+def builder = new org.company.PipelineBuilder(this)
+
+builder.forLanguage('java')
+      .withBuildTool('maven')
+      .withQualityGates(true)
+      .withSecurityScan(true)
+      .withNotifications(true)
+      .withDocker(true)
+      .withKubernetes(true)
+      .withParameters([
+          DEPLOY_ENV: [
+              type: 'choice',
+              choices: ['dev', 'staging', 'prod'],
+              description: 'Deployment environment'
+          ],
+          SKIP_TESTS: [
+              type: 'boolean',
+              defaultValue: false,
+              description: 'Skip running tests'
+          ],
+          MAVEN_GOALS: [
+              type: 'string',
+              defaultValue: 'clean compile',
+              description: 'Maven goals to execute'
+          ]
+      ])
+      .addStage('Code Quality') {
+          echo "Running code quality checks"
+          sh 'mvn checkstyle:checkstyle pmd:pmd spotbugs:spotbugs'
+      }
+      .addStage('Integration Tests') {
+          when {
+              expression { !params.SKIP_TESTS }
+          }
+          steps {
+              echo "Running integration tests"
+              sh 'mvn verify -DskipUnitTests'
+          }
+      }
+      .addStage('Performance Tests') {
+          when {
+              expression { !params.SKIP_TESTS && fileExists('src/test/gatling') }
+          }
+          steps {
+              echo "Running performance tests"
+              sh 'mvn gatling:test -DskipTests=false'
+          }
+      }
+      .addStage('Docker Build') {
+          echo "Building Docker image"
+          docker.buildAndPush(
+              image: "${env.JOB_NAME}",
+              tag: "${env.BUILD_NUMBER}",
+              dockerfile: 'Dockerfile',
+              push: true
+          )
+      }
+      .addStage('Deploy to Kubernetes') {
+          when {
+              expression { params.DEPLOY_ENV != 'none' }
+          }
+          steps {
+              echo "Deploying to ${params.DEPLOY_ENV}"
+              deploy(
+                  environment: params.DEPLOY_ENV,
+                  platform: 'kubernetes',
+                  deploymentStrategy: 'rolling',
+                  imageTag: env.BUILD_NUMBER
+              )
+          }
+      }
+      .build()()

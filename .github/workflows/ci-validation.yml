@@ -1,0 +1,88 @@
+name: CI Validation
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y groovy
+        
+    - name: Run Groovy tests
+      run: |
+        ./scripts/run-tests.sh
+        
+    - name: Run linting
+      run: |
+        ./scripts/run-linting.sh
+        
+    - name: Validate pipeline syntax
+      run: |
+        ./scripts/validate-pipeline-syntax.sh
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        
+    - name: Upload Trivy results
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+        
+    - name: Semgrep SAST
+      uses: returntocorp/semgrep-action@v1
+      with:
+        config: p/security-audit
+        output: 'semgrep-results.sarif'
+        
+    - name: Upload Semgrep results
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'semgrep-results.sarif'
+
+  build:
+    name: Build Library
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Validate structure
+      run: |
+        ./scripts/validate-structure.sh

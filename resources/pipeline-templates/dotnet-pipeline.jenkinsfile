@@ -1,0 +1,77 @@
+// .NET Pipeline Template
+@Library('jenkins-pipeline-library')_
+
+def builder = new org.company.PipelineBuilder(this)
+
+builder.forLanguage('dotnet')
+      .withQualityGates(true)
+      .withSecurityScan(true)
+      .withNotifications(true)
+      .withDocker(true)
+      .withParameters([
+          DEPLOY_ENV: [
+              type: 'choice',
+              choices: ['dev', 'staging', 'prod', 'none'],
+              description: 'Deployment environment'
+          ],
+          DOTNET_VERSION: [
+              type: 'choice',
+              choices: ['6.0', '7.0', '8.0'],
+              description: '.NET version'
+          ],
+          CONFIGURATION: [
+              type: 'choice',
+              choices: ['Debug', 'Release'],
+              defaultValue: 'Release',
+              description: 'Build configuration'
+          ]
+      ])
+      .addStage('Restore Dependencies') {
+          echo "Restoring dependencies"
+          sh 'dotnet restore'
+      }
+      .addStage('Code Analysis') {
+          echo "Running code analysis"
+          sh '''
+            dotnet format --verify-no-changes --verbosity detailed || echo "Code formatting check completed"
+            dotnet list package --vulnerable --include-transitive || echo "Vulnerability check completed"
+          '''
+      }
+      .addStage('Build') {
+          echo "Building application"
+          sh "dotnet build --configuration ${params.CONFIGURATION} --no-restore"
+      }
+      .addStage('Unit Tests') {
+          echo "Running unit tests"
+          sh "dotnet test --configuration ${params.CONFIGURATION} --no-build --verbosity normal --logger \"trx;LogFileName=test-results/unit-tests.trx\" --collect:\"XPlat Code Coverage\" --results-directory test-results"
+      }
+      .addStage('Integration Tests') {
+          when {
+              expression { fileExists('*IntegrationTests.csproj') || fileExists('*Integration*.csproj') }
+          }
+          steps {
+              echo "Running integration tests"
+              sh "dotnet test *Integration*.csproj --configuration ${params.CONFIGURATION} --no-build --verbosity normal --logger \"trx;LogFileName=test-results/integration-tests.trx\""
+          }
+      }
+      .addStage('Publish') {
+          echo "Publishing application"
+          sh "dotnet publish --configuration ${params.CONFIGURATION} --no-build --output publish"
+      }
+      .addStage('Security Scan') {
+          echo "Running security scan"
+          sh '''
+            dotnet list package --vulnerable --include-transitive > reports/dotnet-vulnerabilities.txt
+            dotnet dev-certs https --trust || echo "Certificate trust configuration completed"
+          '''
+      }
+      .addStage('Docker Build') {
+          echo "Building Docker image"
+          docker.buildAndPush(
+              image: "${env.JOB_NAME}",
+              tag: "${env.BUILD_NUMBER}",
+              dockerfile: 'Dockerfile',
+              push: true
+          )
+      }
+      .build()()

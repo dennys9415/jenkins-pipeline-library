@@ -1,0 +1,265 @@
+<?xml version="1.0"?>
+<ruleset name="Jenkins Pipeline Library PMD Rules"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 
+                             https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+    <description>
+        PMD ruleset for Jenkins Pipeline Library Groovy code quality checks
+    </description>
+
+    <!-- Best Practices -->
+    <rule ref="category/java/bestpractices.xml">
+        <!-- Exclude some rules that are too strict -->
+        <exclude name="AbstractClassWithoutAbstractMethod"/>
+        <exclude name="AccessorClassGeneration"/>
+        <exclude name="AvoidPrintStackTrace"/>
+        <exclude name="ConstantsInInterface"/>
+        <exclude name="DefaultLabelNotLastInSwitchStmt"/>
+        <exclude name="ForLoopCanBeForeach"/>
+        <exclude name="GuardLogStatement"/>
+        <exclude name="JUnit4TestShouldUseAfterAnnotation"/>
+        <exclude name="JUnit4TestShouldUseBeforeAnnotation"/>
+        <exclude name="JUnit4TestShouldUseTestAnnotation"/>
+        <exclude name="JUnitAssertionsShouldIncludeMessage"/>
+        <exclude name="JUnitTestContainsTooManyAsserts"/>
+        <exclude name="JUnitTestsShouldIncludeAssert"/>
+        <exclude name="OneDeclarationPerLine"/>
+        <exclude name="PositionLiteralsFirstInCaseInsensitiveComparisons"/>
+        <exclude name="PositionLiteralsFirstInComparisons"/>
+        <exclude name="PreserveStackTrace"/>
+        <exclude name="ReplaceVectorWithList"/>
+        <exclude name="UnusedAssignment"/>
+        <exclude name="UnusedFormalParameter"/>
+        <exclude name="UnusedLocalVariable"/>
+        <exclude name="UnusedPrivateField"/>
+        <exclude name="UnusedPrivateMethod"/>
+        <exclude name="UseCollectionIsEmpty"/>
+    </rule>
+
+    <!-- Code Style -->
+    <rule ref="category/java/codestyle.xml">
+        <exclude name="AtLeastOneConstructor"/>
+        <exclude name="AvoidFinalLocalVariable"/>
+        <exclude name="AvoidUsingNativeCode"/>
+        <exclude name="CallSuperInConstructor"/>
+        <exclude name="CommentDefaultAccessModifier"/>
+        <exclude name="ConfusingTernary"/>
+        <exclude name="EmptyMethodInAbstractClassShouldBeAbstract"/>
+        <exclude name="ExtendsObject"/>
+        <exclude name="FieldDeclarationsShouldBeAtStartOfClass"/>
+        <exclude name="ForLoopShouldBeWhileLoop"/>
+        <exclude name="GodClass"/>
+        <exclude name="LocalVariableCouldBeFinal"/>
+        <exclude name="LongVariable"/>
+        <exclude name="MDBAndSessionBeanNamingConvention"/>
+        <exclude name="MethodArgumentCouldBeFinal"/>
+        <exclude name="OnlyOneReturn"/>
+        <exclude name="ShortClassName"/>
+        <exclude name="ShortMethodName"/>
+        <exclude name="ShortVariable"/>
+        <exclude name="TooManyStaticImports"/>
+        <exclude name="UnnecessaryFullyQualifiedName"/>
+        <exclude name="UnnecessaryModifier"/>
+        <exclude name="UnnecessaryReturn"/>
+        <exclude name="UselessParentheses"/>
+        <exclude name="UselessQualifiedThis"/>
+    </rule>
+
+    <!-- Design -->
+    <rule ref="category/java/design.xml">
+        <exclude name="AbstractClassWithoutAnyMethod"/>
+        <exclude name="AvoidDeeplyNestedIfStmts"/>
+        <exclude name="CouplingBetweenObjects"/>
+        <exclude name="CyclomaticComplexity"/>
+        <exclude name="DataClass"/>
+        <exclude name="ExcessiveClassLength"/>
+        <exclude name="ExcessiveImports"/>
+        <exclude name="ExcessiveMethodLength"/>
+        <exclude name="ExcessiveParameterList"/>
+        <exclude name="ExcessivePublicCount"/>
+        <exclude name="GodClass"/>
+        <exclude name="ImmutableField"/>
+        <exclude name="LawOfDemeter"/>
+        <exclude name="LoosePackageCoupling"/>
+        <exclude name="NcssCount"/>
+        <exclude name="NPathComplexity"/>
+        <exclude name="TooManyFields"/>
+        <exclude name="TooManyMethods"/>
+        <exclude name="UseObjectForClearerAPI"/>
+    </rule>
+
+    <!-- Documentation -->
+    <rule ref="category/java/documentation.xml">
+        <exclude name="CommentContent"/>
+        <exclude name="CommentRequired"/>
+        <exclude name="CommentSize"/>
+        <exclude name="UncommentedEmptyConstructor"/>
+    </rule>
+
+    <!-- Error Prone -->
+    <rule ref="category/java/errorprone.xml">
+        <exclude name="AssignmentInOperand"/>
+        <exclude name="AvoidAccessibilityAlteration"/>
+        <exclude name="AvoidAssertAsIdentifier"/>
+        <exclude name="AvoidBranchingStatementAsLastInLoop"/>
+        <exclude name="AvoidCallingFinalize"/>
+        <exclude name="AvoidCatchingNPE"/>
+        <exclude name="AvoidCatchingThrowable"/>
+        <exclude name="AvoidDecimalLiteralsInBigDecimalConstructor"/>
+        <exclude name="AvoidDuplicateLiterals"/>
+        <exclude name="AvoidEnumAsIdentifier"/>
+        <exclude name="AvoidFieldNameMatchingMethodName"/>
+        <exclude name="AvoidInstanceofChecksInCatchClause"/>
+        <exclude name="AvoidLiteralsInIfCondition"/>
+        <exclude name="AvoidLosingExceptionInformation"/>
+        <exclude name="AvoidMultipleUnaryOperators"/>
+        <exclude name="AvoidUsingOctalValues"/>
+        <exclude name="BeanMembersShouldSerialize"/>
+        <exclude name="BrokenNullCheck"/>
+        <exclude name="CheckSkipResult"/>
+        <exclude name="ClassCastExceptionWithToArray"/>
+        <exclude name="CloneMethodMustImplementCloneable"/>
+        <exclude name="CloneThrowsCloneNotSupportedException"/>
+        <exclude name="CloseResource"/>
+        <exclude name="CompareObjectsWithEquals"/>
+        <exclude name="ConstructorCallsOverridableMethod"/>
+        <exclude name="DoNotCallGarbageCollectionExplicitly"/>
+        <exclude name="DoNotCallSystemExit"/>
+        <exclude name="DoNotExtendJavaLangError"/>
+        <exclude name="DoNotThrowExceptionInFinally"/>
+        <exclude name="DontImportSun"/>
+        <exclude name="DontUseFloatTypeForLoopIndices"/>
+        <exclude name="EmptyCatchBlock"/>
+        <exclude name="EmptyFinalizer"/>
+        <exclude name="EmptyFinallyBlock"/>
+        <exclude name="EmptyIfStmt"/>
+        <exclude name="EmptyInitializer"/>
+        <exclude name="EmptyStatementBlock"/>
+        <exclude name="EmptyStatementNotInLoop"/>
+        <exclude name="EmptySwitchStatements"/>
+        <exclude name="EmptySynchronizedBlock"/>
+        <exclude name="EmptyTryBlock"/>
+        <exclude name="EmptyWhileStmt"/>
+        <exclude name="EqualsNull"/>
+        <exclude name="FinalizeDoesNotCallSuperFinalize"/>
+        <exclude name="FinalizeOnlyCallsSuperFinalize"/>
+        <exclude name="FinalizeOverloaded"/>
+        <exclude name="FinalizeShouldBeProtected"/>
+        <exclude name="IdempotentOperations"/>
+        <exclude name="ImportFromSamePackage"/>
+        <exclude name="InstantiationToGetClass"/>
+        <exclude name="InvalidLogMessageFormat"/>
+        <exclude name="JumbledIncrementer"/>
+        <exclude name="MisplacedNullCheck"/>
+        <exclude name="MissingBreakInSwitch"/>
+        <exclude name="MissingSerialVersionUID"/>
+        <exclude name="MoreThanOneLogger"/>
+        <exclude name="NonCaseLabelInSwitchStatement"/>
+        <exclude name="NonStaticInitializer"/>
+        <exclude name="NullAssignment"/>
+        <exclude name="OverrideBothEqualsAndHashcode"/>
+        <exclude name="ProperCloneImplementation"/>
+        <exclude name="ProperLogger"/>
+        <exclude name="ReturnEmptyArrayRatherThanNull"/>
+        <exclude name="ReturnFromFinallyBlock"/>
+        <exclude name="SimpleDateFormatNeedsLocale"/>
+        <exclude name="SingleMethodSingleton"/>
+        <exclude name="SingletonClassReturningNewInstance"/>
+        <exclude name="StaticEJBFieldShouldBeFinal"/>
+        <exclude name="StringBufferInstantiationWithChar"/>
+        <exclude name="SuspiciousEqualsMethodName"/>
+        <exclude name="SuspiciousHashcodeMethodName"/>
+        <exclude name="SuspiciousOctalEscape"/>
+        <exclude name="TestClassWithoutTestCases"/>
+        <exclude name="UnconditionalIfStatement"/>
+        <exclude name="UnnecessaryBooleanAssertion"/>
+        <exclude name="UnnecessaryCaseChange"/>
+        <exclude name="UnnecessaryConversionTemporary"/>
+        <exclude name="UnusedNullCheckInEquals"/>
+        <exclude name="UseCorrectExceptionLogging"/>
+        <exclude name="UseEqualsToCompareStrings"/>
+        <exclude name="UselessOperationOnImmutable"/>
+        <exclude name="UseLocaleWithCaseConversions"/>
+    </rule>
+
+    <!-- Multithreading -->
+    <rule ref="category/java/multithreading.xml">
+        <exclude name="AvoidSynchronizedAtMethodLevel"/>
+        <exclude name="AvoidUsingVolatile"/>
+        <exclude name="DoNotUseThreads"/>
+        <exclude name="DontCallThreadRun"/>
+        <exclude name="DoubleCheckedLocking"/>
+        <exclude name="NonThreadSafeSingleton"/>
+        <exclude name="UnsynchronizedStaticFormatter"/>
+        <exclude name="UseConcurrentHashMap"/>
+    </rule>
+
+    <!-- Performance -->
+    <rule ref="category/java/performance.xml">
+        <exclude name="AvoidFileStream"/>
+        <exclude name="AvoidInstantiatingObjectsInLoops"/>
+        <exclude name="AvoidUsingShortType"/>
+        <exclude name="BigIntegerInstantiation"/>
+        <exclude name="ConsecutiveAppendsShouldReuse"/>
+        <exclude name="ConsecutiveLiteralAppends"/>
+        <exclude name="InefficientEmptyStringCheck"/>
+        <exclude name="InsufficientStringBufferDeclaration"/>
+        <exclude name="StringInstantiation"/>
+        <exclude name="StringToString"/>
+        <exclude name="TooFewBranchesForASwitchStatement"/>
+        <exclude name="UseArrayListInsteadOfVector"/>
+        <exclude name="UseArraysAsList"/>
+        <exclude name="UseIndexOfChar"/>
+        <exclude name="UselessStringValueOf"/>
+    </rule>
+
+    <!-- Security -->
+    <rule ref="category/java/security.xml">
+        <exclude name="HardCodedCryptoKey"/>
+        <exclude name="InsecureCryptoIv"/>
+    </rule>
+
+    <!-- Custom rule configurations -->
+    <rule ref="category/java/codestyle.xml/ShortVariable">
+        <properties>
+            <property name="minimum" value="2"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/design.xml/CyclomaticComplexity">
+        <properties>
+            <property name="classReportLevel" value="50"/>
+            <property name="methodReportLevel" value="10"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/design.xml/ExcessiveMethodLength">
+        <properties>
+            <property name="minimum" value="100"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/design.xml/ExcessiveClassLength">
+        <properties>
+            <property name="minimum" value="500"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/design.xml/ExcessiveParameterList">
+        <properties>
+            <property name="minimum" value="8"/>
+        </properties>
+    </rule>
+
+    <!-- Groovy specific rules for pipeline development -->
+    <rule ref="category/groovy/bestpractices.xml"/>
+    <rule ref="category/groovy/codestyle.xml">
+        <exclude name="FieldTypeRequired"/>
+        <exclude name="MethodReturnTypeRequired"/>
+        <exclude name="VariableTypeRequired"/>
+    </rule>
+    <rule ref="category/groovy/design.xml"/>
+    <rule ref="category/groovy/errorprone.xml"/>
+</ruleset>

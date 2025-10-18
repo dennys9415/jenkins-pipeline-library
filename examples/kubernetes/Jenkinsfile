@@ -1,0 +1,56 @@
+@Library('jenkins-pipeline-library')_
+
+// Kubernetes Pipeline Example
+def builder = new org.company.PipelineBuilder(this)
+
+builder.forLanguage('java')
+      .withBuildTool('maven')
+      .withQualityGates(true)
+      .withSecurityScan(true)
+      .withNotifications(true)
+      .withDocker(true)
+      .withKubernetes(true)
+      .withParameters([
+          DEPLOY_ENV: [
+              type: 'choice',
+              choices: ['dev', 'staging', 'prod'],
+              description: 'Deployment environment'
+          ],
+          K8S_NAMESPACE: [
+              type: 'string',
+              default: 'default',
+              description: 'Kubernetes namespace'
+          ],
+          DOCKER_REGISTRY: [
+              type: 'string', 
+              default: 'docker.io',
+              description: 'Docker registry'
+          ]
+      ])
+      .addStage('Helm Lint') {
+          echo "Linting Helm charts"
+          sh 'helm lint charts/'
+      }
+      .addStage('K8s Manifest Validation') {
+          echo "Validating Kubernetes manifests"
+          sh 'kubeval manifests/'
+      }
+      .addStage('Helm Dry Run') {
+          echo "Running Helm dry run"
+          sh """
+            helm upgrade --install ${env.JOB_NAME} charts/ \
+              --namespace ${params.K8S_NAMESPACE} \
+              --set image.tag=${env.BUILD_NUMBER} \
+              --dry-run
+          '''
+      }
+      .addStage('Deploy to Kubernetes') {
+          echo "Deploying to Kubernetes"
+          deploy(
+              environment: params.DEPLOY_ENV,
+              platform: 'kubernetes',
+              namespace: params.K8S_NAMESPACE,
+              imageTag: env.BUILD_NUMBER
+          )
+      }
+      .build()()

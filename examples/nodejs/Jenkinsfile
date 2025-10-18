@@ -1,0 +1,46 @@
+@Library('jenkins-pipeline-library')_
+
+// Node.js Pipeline Example
+def builder = new org.company.PipelineBuilder(this)
+
+builder.forLanguage('nodejs')
+      .withQualityGates(true)
+      .withSecurityScan(true)
+      .withNotifications(true)
+      .withDocker(true)
+      .withParameters([
+          DEPLOY_ENV: [
+              type: 'choice',
+              choices: ['dev', 'staging', 'prod'],
+              description: 'Deployment environment'
+          ],
+          NODE_VERSION: [
+              type: 'choice',
+              choices: ['16', '18', '20'],
+              description: 'Node.js version'
+          ]
+      ])
+      .addStage('Lint and Format') {
+          echo "Running linting and formatting"
+          sh '''
+            npm run lint
+            npm run format:check
+          '''
+      }
+      .addStage('Security Audit') {
+          echo "Running security audit"
+          sh 'npm audit --audit-level high'
+      }
+      .addStage('Build') {
+          echo "Building application"
+          sh 'npm run build'
+      }
+      .addStage('Docker Build') {
+          echo "Building Docker image"
+          docker.buildAndPush(
+              image: "${env.JOB_NAME}",
+              tag: "${env.BUILD_NUMBER}",
+              push: true
+          )
+      }
+      .build()()

@@ -1,0 +1,146 @@
+// Multibranch Pipeline Template
+@Library('jenkins-pipeline-library')_
+
+// Branch detection
+def isMainBranch = env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'master'
+def isReleaseBranch = env.BRANCH_NAME.startsWith('release/')
+def isFeatureBranch = env.BRANCH_NAME.startsWith('feature/')
+def isHotfixBranch = env.BRANCH_NAME.startsWith('hotfix/')
+def isDevelopBranch = env.BRANCH_NAME == 'develop'
+
+def builder = new org.company.PipelineBuilder(this)
+
+// Base configuration for all branches
+builder.forLanguage('java')
+      .withBuildTool('maven')
+      .withQualityGates(true)
+      .withNotifications(true)
+
+// Branch-specific configurations
+if (isMainBranch) {
+    builder.withSecurityScan(true)
+          .withDocker(true)
+          .withKubernetes(true)
+          .addStage('Security Deep Scan') {
+              echo "Running comprehensive security scan for main branch"
+              securityScan(
+                  language: 'java',
+                  scanType: 'all',
+                  failOnVulnerabilities: true,
+                  severityThreshold: 'HIGH'
+              )
+          }
+          .addStage('Deploy to Staging') {
+              echo "Deploying to staging environment"
+              deploy(
+                  environment: 'staging',
+                  platform: 'kubernetes',
+                  deploymentStrategy: 'blue-green'
+              )
+          }
+          .addStage('Production Deployment Approval') {
+              echo "Waiting for production deployment approval"
+              input message: "Deploy to production?", ok: "Deploy"
+          }
+          .addStage('Deploy to Production') {
+              echo "Deploying to production"
+              deploy(
+                  environment: 'prod',
+                  platform: 'kubernetes',
+                  deploymentStrategy: 'rolling',
+                  healthCheck: true,
+                  rollbackOnFailure: true
+              )
+          }
+} else if (isReleaseBranch) {
+    builder.withSecurityScan(true)
+          .withDocker(true)
+          .addStage('Release Preparation') {
+              echo "Preparing release"
+              sh '''
+                mvn release:prepare -B -DreleaseVersion=${RELEASE_VERSION} -DdevelopmentVersion=${NEXT_VERSION}
+                mvn release:perform -B
+              '''
+          }
+          .addStage('Release Security Scan') {
+              echo "Running security scan for release"
+              securityScan(
+                  language: 'java',
+                  scanType: 'dependency',
+                  failOnVulnerabilities: true
+              )
+          }
+} else if (isDevelopBranch) {
+    builder.withSecurityScan(true)
+          .withDocker(false)
+          .addStage('Integration Tests') {
+              echo "Running integration tests on develop branch"
+              sh 'mvn verify -DskipUnitTests'
+          }
+          .addStage('Deploy to Development') {
+              echo "Deploying to development environment"
+              deploy(
+                  environment: 'dev',
+                  platform: 'kubernetes',
+                  deploymentStrategy: 'rolling'
+              )
+          }
+} else if (isFeatureBranch) {
+    builder.withSecurityScan(false)
+          .withDocker(false)
+          .addStage('Code Review Checks') {
+              echo "Running code review checks for feature branch"
+              sh '''
+                mvn checkstyle:checkstyle
+                mvn pmd:pmd
+                mvn spotbugs:spotbugs
+              '''
+          }
+          .addStage('Feature Tests') {
+              echo "Running feature-specific tests"
+              sh 'mvn test -Dtest=**/*Test'
+          }
+} else if (isHotfixBranch) {
+    builder.withSecurityScan(true)
+          .withDocker(true)
+          .withKubernetes(true)
+          .addStage('Emergency Security Scan') {
+              echo "Running emergency security scan for hotfix"
+              securityScan(
+                  language: 'java',
+                  scanType: 'dependency',
+                  failOnVulnerabilities: false  // Don't fail for hotfixes, just report
+              )
+          }
+          .addStage('Hotfix Deployment') {
+              echo "Deploying hotfix to production"
+              input message: "Deploy hotfix to production?", ok: "Deploy"
+              deploy(
+                  environment: 'prod',
+                  platform: 'kubernetes',
+                  deploymentStrategy: 'rolling',
+                  healthCheck: true
+              )
+          }
+} else {
+    // Default configuration for other branches
+    builder.withSecurityScan(false)
+          .withDocker(false)
+          .addStage('Basic Checks') {
+              echo "Running basic checks"
+              sh 'mvn compile test'
+          }
+}
+
+// Common post-build actions for all branches
+builder.addPostAction('always') {
+    echo "Pipeline completed for branch: ${env.BRANCH_NAME}"
+    
+    // Archive test results
+    junit '**/test-reports/*.xml,**/target/surefire-reports/*.xml'
+    
+    // Archive artifacts
+    archiveArtifacts artifacts: '**/target/*.jar,**/publish/**,**/docs/build/**', allowEmptyArchive: true
+}
+
+builder.build()()

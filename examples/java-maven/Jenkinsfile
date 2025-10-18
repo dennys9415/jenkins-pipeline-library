@@ -1,0 +1,37 @@
+@Library('jenkins-pipeline-library')_
+
+// Java Maven Pipeline Example
+def builder = new org.company.PipelineBuilder(this)
+
+builder.forLanguage('java')
+      .withBuildTool('maven')
+      .withQualityGates(true)
+      .withSecurityScan(true)
+      .withNotifications(true)
+      .withDocker(true)
+      .withKubernetes(true)
+      .withParameters([
+          DEPLOY_ENV: [
+              type: 'choice',
+              choices: ['dev', 'staging', 'prod'],
+              description: 'Deployment environment'
+          ],
+          SKIP_TESTS: [
+              type: 'boolean', 
+              defaultValue: false,
+              description: 'Skip running tests'
+          ]
+      ])
+      .addStage('Code Analysis') {
+          echo "Running additional code analysis"
+          sh 'mvn checkstyle:checkstyle pmd:pmd spotbugs:spotbugs'
+      }
+      .addStage('Integration Tests') {
+          echo "Running integration tests"
+          sh 'mvn verify -DskipUnitTests'
+      }
+      .addStage('Performance Tests') {
+          echo "Running performance tests"
+          sh 'mvn gatling:test -DskipTests=false'
+      }
+      .build()()

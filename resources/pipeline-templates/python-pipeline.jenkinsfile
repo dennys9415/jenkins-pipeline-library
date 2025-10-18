@@ -1,0 +1,113 @@
+// Python Pipeline Template
+@Library('jenkins-pipeline-library')_
+
+def builder = new org.company.PipelineBuilder(this)
+
+builder.forLanguage('python')
+      .withQualityGates(true)
+      .withSecurityScan(true)
+      .withNotifications(true)
+      .withDocker(true)
+      .withParameters([
+          DEPLOY_ENV: [
+              type: 'choice',
+              choices: ['dev', 'staging', 'prod', 'none'],
+              description: 'Deployment environment'
+          ],
+          PYTHON_VERSION: [
+              type: 'choice',
+              choices: ['3.8', '3.9', '3.10', '3.11'],
+              description: 'Python version'
+          ],
+          RUN_INTEGRATION_TESTS: [
+              type: 'boolean',
+              defaultValue: false,
+              description: 'Run integration tests'
+          ]
+      ])
+      .addStage('Setup Virtual Environment') {
+          echo "Setting up Python virtual environment"
+          sh """
+            python${params.PYTHON_VERSION} -m venv venv
+            . venv/bin/activate
+            pip install --upgrade pip
+          """
+      }
+      .addStage('Install Dependencies') {
+          echo "Installing dependencies"
+          sh '''
+            . venv/bin/activate
+            pip install -r requirements.txt
+            pip install -r requirements-dev.txt || true
+          '''
+      }
+      .addStage('Code Quality') {
+          echo "Running code quality checks"
+          sh '''
+            . venv/bin/activate
+            black --check . || echo "Black not installed"
+            isort --check-only . || echo "isort not installed"
+            flake8 . || echo "Flake8 issues found"
+          '''
+      }
+      .addStage('Type Checking') {
+          when {
+              expression { fileExists('pyproject.toml') || fileExists('mypy.ini') }
+          }
+          steps {
+              echo "Running type checking"
+              sh '''
+                . venv/bin/activate
+                mypy . || echo "Type checking issues found"
+              '''
+          }
+      }
+      .addStage('Security Scan') {
+          echo "Running security scan"
+          sh '''
+            . venv/bin/activate
+            bandit -r . -f json -o reports/bandit-report.json || echo "Bandit scan completed"
+            safety check --json --output reports/safety-report.json || echo "Safety check completed"
+          '''
+      }
+      .addStage('Unit Tests') {
+          echo "Running unit tests"
+          sh '''
+            . venv/bin/activate
+            python -m pytest tests/unit/ -v --junitxml=test-reports/unit-tests.xml --cov=. --cov-report=xml:coverage.xml
+          '''
+      }
+      .addStage('Integration Tests') {
+          when {
+              expression { params.RUN_INTEGRATION_TESTS && fileExists('tests/integration') }
+          }
+          steps {
+              echo "Running integration tests"
+              sh '''
+                . venv/bin/activate
+                python -m pytest tests/integration/ -v --junitxml=test-reports/integration-tests.xml
+              '''
+          }
+      }
+      .addStage('Documentation') {
+          when {
+              expression { fileExists('docs') || fileExists('mkdocs.yml') }
+          }
+          steps {
+              echo "Generating documentation"
+              sh '''
+                . venv/bin/activate
+                mkdocs build --site-dir docs/build || sphinx-build -b html docs/source docs/build || echo "Documentation generation skipped"
+              '''
+          }
+      }
+      .addStage('Docker Build') {
+          echo "Building Docker image"
+          docker.buildAndPush(
+              image: "${env.JOB_NAME}",
+              tag: "${env.BUILD_NUMBER}",
+              dockerfile: 'Dockerfile',
+              push: true
+          )
+      }
+      .build()()

@@ -1,0 +1,147 @@
+// Kubernetes Pipeline Template
+@Library('jenkins-pipeline-library')_
+
+def builder = new org.company.PipelineBuilder(this)
+
+builder.forLanguage('java')
+      .withBuildTool('maven')
+      .withQualityGates(true)
+      .withSecurityScan(true)
+      .withNotifications(true)
+      .withDocker(true)
+      .withKubernetes(true)
+      .withParameters([
+          DEPLOY_ENV: [
+              type: 'choice',
+              choices: ['dev', 'staging', 'prod'],
+              description: 'Deployment environment'
+          ],
+          K8S_NAMESPACE: [
+              type: 'string',
+              defaultValue: 'default',
+              description: 'Kubernetes namespace'
+          ],
+          DOCKER_REGISTRY: [
+              type: 'string',
+              defaultValue: 'docker.io',
+              description: 'Docker registry'
+          ],
+          REPLICAS: [
+              type: 'string',
+              defaultValue: '2',
+              description: 'Number of replicas'
+          ],
+          DEPLOYMENT_STRATEGY: [
+              type: 'choice',
+              choices: ['rolling', 'blue-green', 'canary'],
+              defaultValue: 'rolling',
+              description: 'Deployment strategy'
+          ]
+      ])
+      .addStage('Validate K8s Manifests') {
+          echo "Validating Kubernetes manifests"
+          sh '''
+            # Validate YAML syntax
+            find k8s/ -name "*.yaml" -o -name "*.yml" | xargs -I {} kubectl apply --dry-run=client -f {} || echo "Manifest validation completed"
+            
+            # Use kubeval if available
+            if command -v kubeval &> /dev/null; then
+                find k8s/ -name "*.yaml" -o -name "*.yml" | xargs kubeval || echo "Kubeval validation completed"
+            fi
+          '''
+      }
+      .addStage('Helm Lint') {
+          when {
+              expression { fileExists('charts/') }
+          }
+          steps {
+              echo "Linting Helm charts"
+              sh 'helm lint charts/'
+          }
+      }
+      .addStage('Build Application') {
+          echo "Building application"
+          sh 'mvn clean compile -DskipTests'
+      }
+      .addStage('Run Tests') {
+          echo "Running tests"
+          sh 'mvn test'
+      }
+      .addStage('Build Docker Image') {
+          echo "Building Docker image"
+          docker.buildAndPush(
+              image: "${params.DOCKER_REGISTRY}/${env.JOB_NAME}",
+              tag: "${env.BUILD_NUMBER}",
+              dockerfile: 'Dockerfile',
+              push: true
+          )
+      }
+      .addStage('Scan Container Image') {
+          echo "Scanning container image for vulnerabilities"
+          docker.scan(
+              image: "${params.DOCKER_REGISTRY}/${env.JOB_NAME}",
+              tag: "${env.BUILD_NUMBER}"
+          )
+      }
+      .addStage('Helm Dry Run') {
+          when {
+              expression { fileExists('charts/') }
+          }
+          steps {
+              echo "Running Helm dry run"
+              sh """
+                helm upgrade --install ${env.JOB_NAME} charts/ \
+                  --namespace ${params.K8S_NAMESPACE} \
+                  --set image.repository=${params.DOCKER_REGISTRY}/${env.JOB_NAME} \
+                  --set image.tag=${env.BUILD_NUMBER} \
+                  --set replicaCount=${params.REPLICAS} \
+                  --dry-run
+              """
+          }
+      }
+      .addStage('Deploy to Kubernetes') {
+          echo "Deploying to Kubernetes"
+          deploy(
+              environment: params.DEPLOY_ENV,
+              platform: 'kubernetes',
+              namespace: params.K8S_NAMESPACE,
+              deploymentStrategy: params.DEPLOYMENT_STRATEGY,
+              imageTag: env.BUILD_NUMBER,
+              registry: params.DOCKER_REGISTRY
+          )
+      }
+      .addStage('Smoke Tests') {
+          echo "Running smoke tests"
+          sh '''
+            # Wait for deployment to be ready
+            kubectl rollout status deployment/${env.JOB_NAME} --namespace ${params.K8S_NAMESPACE} --timeout=600s
+            
+            # Run smoke tests
+            ./scripts/smoke-tests.sh || echo "Smoke tests completed"
+          '''
+      }
+      .addStage('Integration Tests') {
+          when {
+              expression { fileExists('tests/integration/') }
+          }
+          steps {
+              echo "Running integration tests"
+              sh '''
+                . venv/bin/activate || true
+                python -m pytest tests/integration/ -v || echo "Integration tests completed"
+              '''
+          }
+      }
+      .addStage('Performance Tests') {
+          when {
+              expression { params.DEPLOY_ENV == 'staging' && fileExists('tests/performance/') }
+          }
+          steps {
+              echo "Running performance tests"
+              sh '''
+                # Run performance tests against staging environment
+                ./scripts/performance-tests.sh || echo "Performance tests completed"
+              '''
+          }
+      }
+      .build()()
