@@ -79,50 +79,61 @@ Example: `feat: add Kubernetes deployment support`
    git clone https://github.com/your-org/jenkins-pipeline-library.git
    cd jenkins-pipeline-library
 ```
-Install development dependencies:
 
-bash
+2. Install development dependencies:
+
+```bash
 ./scripts/setup-environment.sh
-Run tests:
+```
 
-bash
+3. Run tests:
+
+```bash
 ./scripts/run-tests.sh
-Run linting:
+```
 
-bash
+4. Run linting:
+
+```bash
 ./scripts/run-linting.sh
-Testing Your Changes
-Create a test Jenkinsfile to verify your changes
+```
 
-Test with different project types (Java, Node.js, Python)
+## Testing Your Changes
 
-Verify security scanning works correctly
+1. Create a test Jenkinsfile to verify your changes
 
-Test deployment scenarios
+2. Test with different project types (Java, Node.js, Python)
 
-Release Process
-Update version in documentation
+3. Verify security scanning works correctly
 
-Run full test suite
+4. Test deployment scenarios
 
-Update CHANGELOG.md
+## Release Process
 
-Create release tag
+1. Update version in documentation
 
-Publish release notes
+2. Run full test suite
 
-Getting Help
-GitHub Issues for bug reports and feature requests
+3. Update CHANGELOG.md
 
-Documentation for usage questions
+4. Create release tag
 
-Slack channel for quick questions
+5. Publish release notes
 
-Email maintainers for sensitive issues
+## Getting Help
 
-Code of Conduct
+* GitHub Issues for bug reports and feature requests
+
+* Documentation for usage questions
+
+* Slack channel for quick questions
+
+* Email maintainers for sensitive issues
+
+## Code of Conduct
+
 Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its terms.
 
-License
-By contributing, you agree that your contributions will be licensed under the same MIT License that covers the project.
+## License
 
+By contributing, you agree that your contributions will be licensed under the same MIT License that covers the project.
