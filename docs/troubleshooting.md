@@ -1,6 +1,3 @@
-
-#### `docs/troubleshooting.md`
-```markdown
 # Troubleshooting Guide
 
 ## Common Issues and Solutions
@@ -9,103 +6,111 @@
 
 **Problem:** Pipeline fails with library not found error
 
-**Symptoms:**
-Library jenkins-pipeline-library not found
-
-text
+**Symptoms:** Library jenkins-pipeline-library not found
 
 **Solutions:**
 
 1. **Check Global Library Configuration:**
+
    - Go to Jenkins > Manage Jenkins > Configure System
    - Verify library name matches exactly
    - Check repository URL and credentials
 
 2. **Verify Library Version:**
-   ```groovy
+
+```groovy
    @Library('jenkins-pipeline-library@main')_
+```
+
 Check Jenkinsfile Syntax:
 
-groovy
+```groovy
 // ✅ Correct
 @Library('jenkins-pipeline-library')_
 
 // ❌ Incorrect
 library 'jenkins-pipeline-library'
-2. Credential Issues
-Problem: Pipeline fails with credential errors
+```
 
-Symptoms:
+### 2. Credential Issues
 
-text
-Credentials not found
-Permission denied
-Solutions:
+**Problem:** Pipeline fails with credential errors
+
+**Symptoms:**
+
+- Credentials not found
+- Permission denied
+
+**Solutions:**
 
 Verify Credential IDs:
 
-groovy
+```groovy
 withCredentials([string(credentialsId: 'correct-id', variable: 'TOKEN')]) {
     // Use credential
 }
+```
+
 Check Credential Types:
 
-Username/Password → usernamePassword
-
-Secret Text → string
-
-File → file
+- Username/Password → usernamePassword
+- Secret Text → string
+- File → file
 
 Verify Permissions:
 
-Ensure Jenkins user has access to credentials
+- Ensure Jenkins user has access to credentials
+- Check folder-level credentials if using Folders plugin
 
-Check folder-level credentials if using Folders plugin
+### 3. Tool Configuration Issues
 
-3. Tool Configuration Issues
-Problem: Build tools not found
+**Problem:** Build tools not found
 
-Symptoms:
+**Symptoms:**
 
-text
-mvn: command not found
-npm: command not found
-Solutions:
+- mvn: command not found
+- npm: command not found
+
+**Solutions:**
 
 Check Jenkins Global Tool Configuration:
 
-Jenkins > Manage Jenkins > Global Tool Configuration
-
-Verify JDK, Maven, Node.js installations
+- Jenkins > Manage Jenkins > Global Tool Configuration
+- Verify JDK, Maven, Node.js installations
 
 Use Correct Tool Names:
 
-groovy
+```groovy
 tools {
     jdk 'jdk11'        // Must match Jenkins configuration
     maven 'maven-3.8'
     nodejs 'nodejs-18'
 }
+```
+
 Fallback to System Tools:
 
-groovy
+```groovy
 build(
     language: 'java',
     useSystemTools: true  // Use tools from PATH
 )
-4. Network and Proxy Issues
-Problem: Network timeouts or connection refused
+```
 
-Symptoms:
+### 4. Network and Proxy Issues
 
-text
-Connection timed out
-Connection refused
-Solutions:
+**Problem:** Network timeouts or connection refused
+
+**Symptoms:**
+
+- Connection timed out
+- Connection refused
+
+**Solutions:**
 
 Configure Proxy Settings:
 
-groovy
+```groovy
 build(
     language: 'java',
     proxy: [
@@ -114,9 +119,11 @@ build(
         noProxy: 'localhost,127.0.0.1,.company.com'
     ]
 )
+```
+
 Increase Timeouts:
 
-groovy
+```groovy
 build(
     language: 'java',
     timeouts: [
@@ -124,25 +131,27 @@ build(
         connection: 60
     ]
 )
+```
+
 Check Firewall Rules:
 
-Verify outbound connections are allowed
+- Verify outbound connections are allowed
+- Check DNS resolution
 
-Check DNS resolution
+### 5. Resource Exhaustion
 
-5. Resource Exhaustion
-Problem: Build fails due to resource limits
+**Problem:** Build fails due to resource limits
 
-Symptoms:
+**Symptoms:**
 
-text
-OutOfMemoryError
-No space left on device
-Solutions:
+- OutOfMemoryError
+- No space left on device
+
+**Solutions:**
 
 Increase Resource Limits:
 
-groovy
+```groovy
 build(
     language: 'java',
     resources: [
@@ -151,9 +160,11 @@ build(
         disk: '10g'
     ]
 )
+```
+
 Clean Workspace:
 
-groovy
+```groovy
 build(
     language: 'java',
     cleanup: [
@@ -162,9 +173,11 @@ build(
         tempFiles: true
     ]
 )
+```
+
 Optimize Build Process:
 
-groovy
+```groovy
 build(
     language: 'java',
     optimization: [
@@ -173,11 +186,15 @@ build(
         cache: true
     ]
 )
-Debugging Techniques
-1. Enable Debug Logging
+```
+
+## Debugging Techniques
+
+### 1. Enable Debug Logging
+
 Add debug output to pipeline:
 
-groovy
+```groovy
 @Library('jenkins-pipeline-library')_
 
 node {
@@ -192,10 +209,13 @@ node {
         )
     }
 }
-2. Step-by-Step Execution
+```
+
+### 2. Step-by-Step Execution
+
 Execute pipeline step by step:
 
-groovy
+```groovy
 build(
     language: 'java',
     stages: [
@@ -214,33 +234,35 @@ build(
         ]
     ]
 )
-3. Check Jenkins System Logs
+```
+
+### 3. Check Jenkins System Logs
+
 Access Jenkins system logs:
 
-Go to Jenkins > Manage Jenkins > System Log
+- Go to Jenkins > Manage Jenkins > System Log
+- Check for errors and warnings
+- Look for library-related messages
 
-Check for errors and warnings
+### 4. Use Pipeline Syntax Generator
 
-Look for library-related messages
-
-4. Use Pipeline Syntax Generator
 Generate correct pipeline syntax:
 
-Go to your Jenkins pipeline job
+- Go to your Jenkins pipeline job
+- Click "Pipeline Syntax"
+- Use the snippet generator for complex steps
 
-Click "Pipeline Syntax"
+## Performance Issues
 
-Use the snippet generator for complex steps
+### 1. Slow Build Times
 
-Performance Issues
-1. Slow Build Times
-Symptoms: Builds taking longer than expected
+**Symptoms:** Builds taking longer than expected
 
-Solutions:
+**Solutions:**
 
-Enable Caching:
+**Enable Caching:**
 
-groovy
+```groovy
 build(
     language: 'java',
     cache: [
@@ -249,9 +271,11 @@ build(
         docker: true
     ]
 )
+```
+
 Use Parallel Execution:
 
-groovy
+```groovy
 build(
     language: 'java',
     parallel: [
@@ -260,9 +284,11 @@ build(
         builds: false
     ]
 )
+```
+
 Optimize Dependencies:
 
-groovy
+```groovy
 build(
     language: 'java',
     dependencies: [
@@ -271,14 +297,17 @@ build(
         checksums: 'warn'
     ]
 )
-2. Memory Issues
-Symptoms: OutOfMemory errors or high memory usage
+```
 
-Solutions:
+### 2. Memory Issues
+
+**Symptoms:** OutOfMemory errors or high memory usage
+
+**Solutions:**
 
 Increase Heap Size:
 
-groovy
+```groovy
 build(
     language: 'java',
     jvm: [
@@ -287,9 +316,11 @@ build(
         maxMetaspace: '1g'
     ]
 )
+```
+
 Use Lightweight Operations:
 
-groovy
+```groovy
 build(
     language: 'java',
     optimization: [
@@ -298,15 +329,19 @@ build(
         incrementalCompilation: true
     ]
 )
-Security Issues
-1. Certificate Errors
-Symptoms: SSL certificate validation failures
+```
 
-Solutions:
+## Security Issues
+
+### 1. Certificate Errors
+
+**Symptoms:** SSL certificate validation failures
+
+**Solutions:**
 
 Add Certificates to Trust Store:
 
-groovy
+```groovy
 build(
     language: 'java',
     security: [
@@ -316,23 +351,28 @@ build(
         ]
     ]
 )
+```
+
 Temporarily Disable SSL Verification (Not Recommended):
 
-groovy
+```groovy
 build(
     language: 'java',
     security: [
         sslVerify: false  // Use only for testing
     ]
 )
-2. Permission Denied
-Symptoms: File permission errors
+```
 
-Solutions:
+### 2. Permission Denied
+
+**Symptoms:** File permission errors
+
+**Solutions:**
 
 Check File Permissions:
 
-groovy
+```groovy
 build(
     language: 'java',
     permissions: [
@@ -341,23 +381,29 @@ build(
         logs: '644'
     ]
 )
+```
+
 Run as Specific User:
 
-groovy
+```groovy
 build(
     language: 'java',
     user: 'jenkins',
     group: 'jenkins'
 )
-Integration Issues
-1. SonarQube Integration
-Problem: SonarQube analysis fails
+```
 
-Solutions:
+## Integration Issues
+
+### 1. SonarQube Integration
+
+**Problem:** SonarQube analysis fails
+
+**Solutions:**
 
 Verify SonarQube Configuration:
 
-groovy
+```groovy
 build(
     language: 'java',
     sonarQube: [
@@ -366,20 +412,22 @@ build(
         qualityGate: true
     ]
 )
+```
+
 Check SonarQube Scanner:
 
-Verify scanner installation in Jenkins
+- Verify scanner installation in Jenkins
+- Check SonarQube server accessibility
 
-Check SonarQube server accessibility
+### 2. Docker Integration
 
-2. Docker Integration
-Problem: Docker build or push fails
+**Problem:** Docker build or push fails
 
-Solutions:
+**Solutions:**
 
 Verify Docker Configuration:
 
-groovy
+```groovy
 build(
     language: 'java',
     docker: [
@@ -388,47 +436,56 @@ build(
         buildArgs: ['--no-cache']
     ]
 )
+```
+
 Check Docker Daemon:
 
-Ensure Docker daemon is running
+- Ensure Docker daemon is running
+- Verify Jenkins user has Docker permissions
 
-Verify Jenkins user has Docker permissions
+### 3. Kubernetes Integration
 
-3. Kubernetes Integration
-Problem: Kubernetes deployment fails
+**Problem:** Kubernetes deployment fails
 
-Solutions:
+**Solutions:**
 
 Verify Kubernetes Configuration:
 
-groovy
+```groovy
 deploy(
     environment: 'dev',
     platform: 'kubernetes',
     kubeconfig: 'kubeconfig',
     namespace: 'default'
 )
+```
+
 Check Cluster Access:
 
-Verify kubeconfig file is valid
+- Verify kubeconfig file is valid
+- Check cluster connectivity and permissions
 
-Check cluster connectivity and permissions
+## Getting Help
 
-Getting Help
-1. Collect Debug Information
+### 1. Collect Debug Information
+
 When asking for help, provide:
 
 Jenkins Version:
 
-groovy
+```groovy
 echo "Jenkins version: ${Jenkins.instance.version}"
+```
+
 Pipeline Library Version:
 
-groovy
+```groovy
 echo "Library version: main"  // or your branch/version
+```
+
 Relevant Logs:
 
-groovy
+```groovy
 build(
     language: 'java',
     logging: [
@@ -436,21 +493,22 @@ build(
         file: 'pipeline-debug.log'
     ]
 )
-2. Community Resources
-GitHub Issues: Report bugs and feature requests
+```
 
-Documentation: Check this troubleshooting guide
+### 2. Community Resources
 
-Stack Overflow: Search for similar issues
+- GitHub Issues: Report bugs and feature requests
+- Documentation: Check this troubleshooting guide
+- Stack Overflow: Search for similar issues
+- Jenkins Community: Join Jenkins mailing lists and forums
 
-Jenkins Community: Join Jenkins mailing lists and forums
+### 3. Emergency Procedures
 
-3. Emergency Procedures
 For critical production issues:
 
 Immediate Rollback:
 
-groovy
+```groovy
 try {
     deploy(environment: 'prod')
 } catch (Exception e) {
@@ -461,13 +519,16 @@ try {
         message: "Emergency rollback executed: ${e.message}"
     )
 }
+```
+
 Disable Problematic Features:
 
-groovy
+```groovy
 build(
     language: 'java',
     securityScan: false,  // Temporarily disable if causing issues
     qualityGate: false
 )
-By following this troubleshooting guide, you'll be able to quickly identify and resolve common issues with the Jenkins Pipeline Library, ensuring smooth and reliable CI/CD operations.
+```
 
+By following this troubleshooting guide, you'll be able to quickly identify and resolve common issues with the Jenkins Pipeline Library, ensuring smooth and reliable CI/CD operations.

@@ -1,6 +1,3 @@
-
-#### `docs/pipeline-library-guide.md`
-```markdown
 # Pipeline Library Guide
 
 ## Architecture
@@ -35,91 +32,89 @@ build(
     sonarQube: true
 )
 ```
-test.groovy
+
+### test.groovy
+
 Runs tests and generates coverage reports.
 
-Parameters:
+**Parameters:**
 
-language (String) - Project language
+- `language` (String) - Project language
+- `testType` (String) - Type of tests (unit, integration, e2e, all)
+- `coverage` (Boolean) - Generate coverage reports (default: true)
+- `parallel` (Boolean) - Run tests in parallel (default: false)
 
-testType (String) - Type of tests (unit, integration, e2e, all)
+**Example:**
 
-coverage (Boolean) - Generate coverage reports (default: true)
-
-parallel (Boolean) - Run tests in parallel (default: false)
-
-Example:
-
-groovy
+```groovy
 test(
     language: 'java',
     testType: 'all',
     coverage: true,
     parallel: true
 )
-deploy.groovy
+```
+
+### deploy.groovy
+
 Deploys applications to various platforms.
 
-Parameters:
+**Parameters:**
 
-environment (String) - Target environment (dev, staging, prod)
+- `environment` (String) - Target environment (dev, staging, prod)
+- `platform` (String) - Deployment platform (kubernetes, docker, openshift)
+- `deploymentStrategy` (String) - Deployment strategy (rolling, blue-green, canary)
+- `healthCheck` (Boolean) - Perform health checks (default: true)
 
-platform (String) - Deployment platform (kubernetes, docker, openshift)
+**Example:**
 
-deploymentStrategy (String) - Deployment strategy (rolling, blue-green, canary)
-
-healthCheck (Boolean) - Perform health checks (default: true)
-
-Example:
-
-groovy
+```groovy
 deploy(
     environment: 'staging',
     platform: 'kubernetes',
     deploymentStrategy: 'rolling'
 )
-securityScan.groovy
+```
+
+### securityScan.groovy
+
 Performs security vulnerability scanning.
 
-Parameters:
+**Parameters:**
 
-language (String) - Project language
+- `language` (String) - Project language
+- `scanType` (String) - Type of scan (sast, dast, dependency, container, all)
+- `failOnVulnerabilities` (Boolean) - Fail build on vulnerabilities (default: true)
+- `severityThreshold` (String) - Minimum severity to fail (HIGH, CRITICAL)
 
-scanType (String) - Type of scan (sast, dast, dependency, container, all)
+**Example:**
 
-failOnVulnerabilities (Boolean) - Fail build on vulnerabilities (default: true)
-
-severityThreshold (String) - Minimum severity to fail (HIGH, CRITICAL)
-
-Example:
-
-groovy
+```groovy
 securityScan(
     language: 'java',
     scanType: 'all',
     failOnVulnerabilities: true
 )
-Core Classes Reference
-PipelineBuilder
+```
+
+## Core Classes Reference
+
+### PipelineBuilder
+
 Fluent API for building complex pipelines.
 
 Methods:
 
-forLanguage(String language) - Set project language
+- forLanguage(String language) - Set project language
+- withBuildTool(String buildTool) - Set build tool
+- withQualityGates(boolean enabled) - Enable quality gates
+- withSecurityScan(boolean enabled) - Enable security scanning
+- addStage(String name, Closure stage) - Add custom stage
+- build() - Build the pipeline
 
-withBuildTool(String buildTool) - Set build tool
+**Example:**
 
-withQualityGates(boolean enabled) - Enable quality gates
-
-withSecurityScan(boolean enabled) - Enable security scanning
-
-addStage(String name, Closure stage) - Add custom stage
-
-build() - Build the pipeline
-
-Example:
-
-groovy
+```groovy
 def builder = new org.company.PipelineBuilder(this)
 
 builder.forLanguage('java')
@@ -129,18 +124,20 @@ builder.forLanguage('java')
           echo "Running custom logic"
       }
       .build()()
-QualityGate
+```
+
+### QualityGate
+
 Manages quality gates and validation.
 
 Methods:
 
-validateCodeQuality(Map config) - Validate code quality metrics
+- validateCodeQuality(Map config) - Validate code quality metrics
+- enforceStandards() - Enforce coding standards
 
-enforceStandards() - Enforce coding standards
+**Example:**
 
-Example:
-
-groovy
+```groovy
 def qualityGate = new org.company.QualityGate(this)
 
 qualityGate.validateCodeQuality(
@@ -148,29 +145,34 @@ qualityGate.validateCodeQuality(
     coverageThreshold: 80,
     duplicationThreshold: 5
 )
-SecurityScanner
+```
+
+### SecurityScanner
+
 Performs security scanning and vulnerability management.
 
 Methods:
 
-scanDependencies(Map config) - Scan dependencies for vulnerabilities
+- scanDependencies(Map config) - Scan dependencies for vulnerabilities
+- scanContainer(String imageName) - Scan container images
+- generateSecurityReport(List vulnerabilities) - Generate security reports
 
-scanContainer(String imageName) - Scan container images
+**Example:**
 
-generateSecurityReport(List vulnerabilities) - Generate security reports
-
-Example:
-
-groovy
+```groovy
 def securityScanner = new org.company.SecurityScanner(this)
 
 def vulnerabilities = securityScanner.scanDependencies(
     language: 'java',
     failOnVulnerabilities: true
 )
-Customizing Pipelines
-Adding Custom Stages
-groovy
+```
+
+## Customizing Pipelines
+
+### Adding Custom Stages
+
+```groovy
 build(
     language: 'java',
     stages: [
@@ -190,8 +192,11 @@ build(
         ]
     ]
 )
-Environment-Specific Configuration
-groovy
+```
+
+### Environment-Specific Configuration
+
+```groovy
 def environment = env.BRANCH_NAME == 'main' ? 'prod' : 'dev'
 
 build(
@@ -199,8 +204,11 @@ build(
     environment: environment,
     deploy: environment == 'prod'
 )
-Conditional Execution
-groovy
+```
+
+### Conditional Execution
+
+```groovy
 build(
     language: 'java',
     stages: [
@@ -215,9 +223,13 @@ build(
         ]
     ]
 )
-Best Practices
-1. Use PipelineBuilder for Complex Pipelines
-groovy
+```
+
+## Best Practices
+
+### 1. Use PipelineBuilder for Complex Pipelines
+
+```groovy
 // ✅ Recommended
 def builder = new org.company.PipelineBuilder(this)
 builder.forLanguage('java')
@@ -226,8 +238,11 @@ builder.forLanguage('java')
 
 // ❌ Avoid
 build(language: 'java', qualityGate: true)
-2. Configure Quality Gates
-groovy
+```
+
+### 2. Configure Quality Gates
+
+```groovy
 build(
     language: 'java',
     qualityGate: true,
@@ -235,8 +250,11 @@ build(
     duplicationThreshold: 5,
     securityIssuesThreshold: 0
 )
-3. Implement Proper Error Handling
-groovy
+```
+
+### 3. Implement Proper Error Handling
+
+```groovy
 try {
     build(language: 'java')
 } catch (Exception e) {
@@ -247,8 +265,11 @@ try {
     )
     error "Build failed: ${e.message}"
 }
-4. Use Environment-Specific Configurations
-groovy
+```
+
+### 4. Use Environment-Specific Configurations
+
+```groovy
 def config = [
     language: 'java',
     environment: env.BRANCH_NAME
@@ -261,9 +282,13 @@ if (env.BRANCH_NAME == 'main') {
 }
 
 build(config)
-Advanced Topics
-Multi-Branch Pipelines
-groovy
+```
+
+## Advanced Topics
+
+### Multi-Branch Pipelines
+
+```groovy
 def isMainBranch = env.BRANCH_NAME == 'main'
 def isFeatureBranch = env.BRANCH_NAME.startsWith('feature/')
 
@@ -280,8 +305,11 @@ if (isMainBranch) {
 }
 
 build(config)
-Parallel Execution
-groovy
+```
+
+### Parallel Execution
+
+```groovy
 build(
     language: 'java',
     stages: [
@@ -298,8 +326,11 @@ build(
         ]
     ]
 )
-Custom Notifications
-groovy
+```
+
+### Custom Notifications
+
+```groovy
 build(
     language: 'java',
     notifications: [
@@ -315,31 +346,34 @@ build(
         ]
     ]
 )
-Extending the Library
-Adding Custom Steps
-Create a new file in vars/ directory
+```
 
-Implement your custom step
+## Extending the Library
 
-Add tests in test/vars/
+### Adding Custom Steps
+
+* Create a new file in vars/ directory
+* Implement your custom step
+* Add tests in test/vars/
 
 Example: vars/customStep.groovy:
 
-groovy
+```groovy
 def call(Map params = [:]) {
     echo "Running custom step"
     // Your logic here
 }
-Adding Utility Classes
-Create a new class in src/org/company/
+```
 
-Implement your business logic
+### Adding Utility Classes
 
-Add tests in test/src/org/company/
+* Create a new class in src/org/company/
+* Implement your business logic
+* Add tests in test/src/org/company/
 
 Example: src/org/company/CustomUtil.groovy:
 
-groovy
+```groovy
 package org.company
 
 class CustomUtil implements Serializable {

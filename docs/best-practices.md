@@ -1,6 +1,3 @@
-
-#### `docs/best-practices.md`
-```markdown
 # Best Practices Guide
 
 ## Pipeline Design
@@ -19,9 +16,9 @@ build(
 )
 ```
 
-❌ Avoid:
+**❌ Avoid:**
 
-groovy
+```groovy
 node {
     stage('Checkout') {
         checkout scm
@@ -31,10 +28,13 @@ node {
     }
     // ... more manual stages
 }
-2. Use Meaningful Stage Names
-✅ Recommended:
+```
 
-groovy
+### 2. Use Meaningful Stage Names
+
+**✅ Recommended:**
+
+```groovy
 build(
     language: 'java',
     stages: [
@@ -43,19 +43,24 @@ build(
         [name: 'Deploy to Staging', steps: { /* ... */ }]
     ]
 )
-❌ Avoid:
+```
 
-groovy
+**❌ Avoid:**
+
+```groovy
 build(
     stages: [
         [name: 'Stage 1', steps: { /* ... */ }],
         [name: 'Stage 2', steps: { /* ... */ }]
     ]
 )
-3. Implement Proper Error Handling
-✅ Recommended:
+```
 
-groovy
+### 3. Implement Proper Error Handling
+
+**✅ Recommended:**
+
+```groovy
 try {
     build(language: 'java')
 } catch (Exception e) {
@@ -68,8 +73,11 @@ try {
     cleanWs()
     error "Pipeline failed: ${e.message}"
 }
-4. Use Timeouts and Retries
-groovy
+```
+
+### 4. Use Timeouts and Retries
+
+```groovy
 build(
     language: 'java',
     options: [
@@ -77,28 +85,40 @@ build(
         retries: 3
     ]
 )
-Security Practices
-1. Never Store Secrets in Code
-✅ Recommended:
+```
 
-groovy
+## Security Practices
+
+### 1. Never Store Secrets in Code
+
+**✅ Recommended:**
+
+```groovy
 withCredentials([string(credentialsId: 'api-token', variable: 'API_TOKEN')]) {
     sh "curl -H 'Authorization: Bearer $API_TOKEN' https://api.example.com"
 }
-❌ Avoid:
+```
 
-groovy
+**❌ Avoid:**
+
+```groovy
 sh "curl -H 'Authorization: Bearer secret-token' https://api.example.com"
-2. Scan Dependencies Regularly
-groovy
+```
+
+### 2. Scan Dependencies Regularly
+
+```groovy
 build(
     language: 'java',
     securityScan: true,
     scanType: 'dependency',
     failOnVulnerabilities: true
 )
-3. Use Least Privilege Principle
-groovy
+```
+
+### 3. Use Least Privilege Principle
+
+```groovy
 build(
     language: 'java',
     environment: [
@@ -106,8 +126,11 @@ build(
         // Don't expose unnecessary permissions
     ]
 )
-4. Implement Security Gates
-groovy
+```
+
+### 4. Implement Security Gates
+
+```groovy
 build(
     language: 'java',
     qualityGate: true,
@@ -117,9 +140,13 @@ build(
         securityIssues: 0
     ]
 )
-Performance Optimization
-1. Use Parallel Execution
-groovy
+```
+
+## Performance Optimization
+
+### 1. Use Parallel Execution
+
+```groovy
 build(
     language: 'java',
     stages: [
@@ -139,8 +166,11 @@ build(
         ]
     ]
 )
-2. Cache Dependencies
-groovy
+```
+
+### 2. Cache Dependencies
+
+```groovy
 build(
     language: 'java',
     cache: [
@@ -149,23 +179,33 @@ build(
         docker: true
     ]
 )
-3. Optimize Docker Layers
-groovy
+```
+
+### 3. Optimize Docker Layers
+
+```groovy
 docker.buildAndPush(
     image: 'my-app',
     tag: env.BUILD_NUMBER,
     dockerfile: 'Dockerfile.optimized',
     buildArgs: ['--no-cache']
 )
-4. Use Lightweight Base Images
-groovy
+```
+
+### 4. Use Lightweight Base Images
+
+```groovy
 docker.buildAndPush(
     image: 'my-app',
     baseImage: 'openjdk:11-jre-slim'  // Instead of openjdk:11
 )
-Maintenance Practices
-1. Regular Dependency Updates
-groovy
+```
+
+## Maintenance Practices
+
+### 1. Regular Dependency Updates
+
+```groovy
 build(
     language: 'java',
     stages: [
@@ -179,8 +219,11 @@ build(
         ]
     ]
 )
-2. Monitor Pipeline Performance
-groovy
+```
+
+### 2. Monitor Pipeline Performance
+
+```groovy
 build(
     language: 'java',
     monitoring: [
@@ -189,8 +232,11 @@ build(
         dashboard: true
     ]
 )
-3. Implement Cleanup Procedures
-groovy
+```
+
+### 3. Implement Cleanup Procedures
+
+```groovy
 build(
     language: 'java',
     post: [
@@ -201,9 +247,13 @@ build(
         }
     ]
 )
-Quality Assurance
-1. Code Coverage Requirements
-groovy
+```
+
+## Quality Assurance
+
+### 1. Code Coverage Requirements
+
+```groovy
 build(
     language: 'java',
     qualityGate: true,
@@ -213,8 +263,11 @@ build(
         report: true
     ]
 )
-2. Static Analysis Integration
-groovy
+```
+
+### 2. Static Analysis Integration
+
+```groovy
 build(
     language: 'java',
     staticAnalysis: [
@@ -224,8 +277,11 @@ build(
         sonarqube: true
     ]
 )
-3. Test Automation
-groovy
+```
+
+### 3. Test Automation
+
+```groovy
 build(
     language: 'java',
     tests: [
@@ -236,9 +292,13 @@ build(
         reports: true
     ]
 )
-Documentation and Communication
-1. Pipeline Documentation
-groovy
+```
+
+## Documentation and Communication
+
+### 1. Pipeline Documentation
+
+```groovy
 build(
     language: 'java',
     documentation: [
@@ -247,8 +307,11 @@ build(
         apiDocs: true
     ]
 )
-2. Notifications and Alerts
-groovy
+```
+
+### 2. Notifications and Alerts
+
+```groovy
 build(
     language: 'java',
     notifications: [
@@ -264,8 +327,11 @@ build(
         ]
     ]
 )
-3. Metrics and Reporting
-groovy
+```
+
+### 3. Metrics and Reporting
+
+```groovy
 build(
     language: 'java',
     reporting: [
@@ -275,9 +341,13 @@ build(
         performance: true
     ]
 )
-Environment Management
-1. Environment-Specific Configurations
-groovy
+```
+
+## Environment Management
+
+### 1. Environment-Specific Configurations
+
+```groovy
 def environmentConfigs = [
     dev: [
         replicas: 1,
@@ -304,8 +374,11 @@ build(
     environment: currentEnv,
     deployment: config
 )
-2. Configuration Management
-groovy
+```
+
+### 2. Configuration Management
+
+```groovy
 build(
     language: 'java',
     config: [
@@ -319,36 +392,42 @@ build(
         ]
     ]
 )
-Continuous Improvement
-1. Regular Pipeline Reviews
+```
+
+## Continuous Improvement
+
+### 1. Regular Pipeline Reviews
+
 Schedule regular reviews of your pipelines to:
 
-Identify performance bottlenecks
+* Identify performance bottlenecks
 
-Update security practices
+* Update security practices
 
-Improve error handling
+* Improve error handling
 
-Optimize resource usage
+* Optimize resource usage
 
-2. Feedback Loops
+### 2. Feedback Loops
+
 Implement feedback mechanisms:
 
-Developer feedback on pipeline usability
+* Developer feedback on pipeline usability
 
-Operations feedback on deployment reliability
+* Operations feedback on deployment reliability
 
-Security team feedback on compliance
+* Security team feedback on compliance
 
-3. Metrics Collection
+### 3. Metrics Collection
+
 Collect and analyze pipeline metrics:
 
-Build times
+* Build times
 
-Success/failure rates
+* Success/failure rates
 
-Test coverage trends
+* Test coverage trends
 
-Security vulnerability trends
+* Security vulnerability trends
 
 By following these best practices, you'll create maintainable, secure, and efficient CI/CD pipelines that scale with your organization's needs.

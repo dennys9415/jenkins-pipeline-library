@@ -68,8 +68,8 @@ build(
 )
 ```
 
-Advanced Usage
-groovy
+### Advanced Usage
+```groovy
 @Library('jenkins-pipeline-library')_
 
 def builder = new org.company.PipelineBuilder(this)
@@ -80,41 +80,49 @@ builder.forLanguage('java')
       .withSecurityScan(true)
       .withNotifications(true)
       .build()()
-Pipeline Components
-Available Steps
-build() - Build your application
+```
 
-test() - Run tests with coverage
+## Pipeline Components
 
-securityScan() - Security vulnerability scanning
+#### Available Steps
 
-deploy() - Deployment to various environments
+* build() - Build your application
 
-notify() - Send notifications
+* test() - Run tests with coverage
 
-Supported Languages
-Java (Maven, Gradle)
+* securityScan() - Security vulnerability scanning
 
-Node.js (npm, yarn)
+* deploy() - Deployment to various environments
 
-Python (pip, venv)
+* notify() - Send notifications
 
-.NET (dotnet)
+### Supported Languages
 
-Deployment Platforms
-Kubernetes
+* Java (Maven, Gradle)
 
-Docker
+* Node.js (npm, yarn)
 
-OpenShift
+* Python (pip, venv)
 
-Cloud Foundry
+* .NET (dotnet)
 
-Configuration
-Environment Variables
+### Deployment Platforms
+
+* Kubernetes
+
+* Docker
+
+* OpenShift
+
+* Cloud Foundry
+
+## Configuration
+
+### Environment Variables
+
 Set these environment variables in your Jenkins:
 
-bash
+```bash
 # Java
 JAVA_HOME=/path/to/java
 
@@ -134,10 +142,13 @@ SONAR_AUTH_TOKEN=your-token
 # Slack
 SLACK_TEAM_DOMAIN=your-team
 SLACK_CHANNEL=#builds
-Quality Gates
+```
+
+## Quality Gates
+
 Configure quality gates in your Jenkinsfile:
 
-groovy
+```groovy
 build(
     language: 'java',
     qualityGate: true,
@@ -145,31 +156,37 @@ build(
     coverageThreshold: 80,
     duplicationThreshold: 5
 )
-Examples
+```
+
+## Examples
+
 Check the examples directory for complete pipeline examples:
 
-Java Maven
+* Java Maven
 
-Node.js
+* Node.js
 
-Python
+* Python
 
-Kubernetes
+* Kubernetes
 
-Troubleshooting
-Common Issues
-Library not found: Check global library configuration
+## Troubleshooting
 
-Credentials not found: Verify credential IDs match
+### Common Issues
 
-Tool not installed: Ensure required tools are installed on Jenkins agents
+* Library not found: Check global library configuration
 
-Permission denied: Check file permissions and service accounts
+* Credentials not found: Verify credential IDs match
 
-Debugging
+* Tool not installed: Ensure required tools are installed on Jenkins agents
+
+* Permission denied: Check file permissions and service accounts
+
+## Debugging
+
 Enable debug logging by adding to your Jenkinsfile:
 
-groovy
+```groovy
 @Library('jenkins-pipeline-library')_
 
 node {
@@ -178,11 +195,14 @@ node {
         // Your pipeline here
     }
 }
-Next Steps
-Read the Pipeline Library Guide
+```
 
-Learn about Best Practices
+## Next Steps
 
-Review Security Guidelines
+* Read the Pipeline Library Guide
 
-Check Troubleshooting for common issues
+* Learn about Best Practices
+
+* Review Security Guidelines
+
+* Check Troubleshooting for common issues

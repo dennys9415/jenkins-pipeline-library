@@ -1,6 +1,3 @@
-
-#### `docs/security-guide.md`
-```markdown
 # Security Guide
 
 ## Overview
@@ -28,15 +25,18 @@ withCredentials([
 }
 ```
 
-❌ Never hardcode secrets:
+**❌ Never hardcode secrets:**
 
-groovy
+```groovy
 // NEVER DO THIS!
 sh "curl -H 'Authorization: token hardcoded-secret-123'"
-2. Environment Security
+```
+
+### 2. Environment Security
+
 Secure environment variables:
 
-groovy
+```groovy
 build(
     language: 'java',
     environment: [
@@ -49,10 +49,13 @@ build(
         SONAR_TOKEN: credentials('sonar-token')
     ]
 )
-3. Network Security
+```
+
+### 3. Network Security
+
 Use secure connections:
 
-groovy
+```groovy
 build(
     language: 'java',
     network: [
@@ -64,11 +67,14 @@ build(
         ]
     ]
 )
-Vulnerability Management
-1. Dependency Scanning
+```
+
+## Vulnerability Management
+### 1. Dependency Scanning
+
 Scan dependencies for vulnerabilities:
 
-groovy
+```groovy
 build(
     language: 'java',
     securityScan: [
@@ -77,9 +83,11 @@ build(
         severityThreshold: 'HIGH'
     ]
 )
+```
+
 Configure scanning tools:
 
-groovy
+```groovy
 securityScan(
     language: 'java',
     tools: [
@@ -90,10 +98,13 @@ securityScan(
     reports: true,
     monitoring: true
 )
-2. Container Security
+```
+
+### 2. Container Security
+
 Scan container images:
 
-groovy
+```groovy
 docker.buildAndPush(
     image: 'my-app',
     tag: env.BUILD_NUMBER,
@@ -103,9 +114,11 @@ docker.buildAndPush(
         severityThreshold: 'CRITICAL'
     ]
 )
+```
+
 Use secure base images:
 
-groovy
+```groovy
 docker.buildAndPush(
     baseImage: 'openjdk:11-jre-slim',  // Minimal base image
     security: [
@@ -114,10 +127,13 @@ docker.buildAndPush(
         user: 'appuser'
     ]
 )
-3. SAST (Static Application Security Testing)
+```
+
+### 3. SAST (Static Application Security Testing)
+
 Integrate SAST tools:
 
-groovy
+```groovy
 build(
     language: 'java',
     sast: [
@@ -128,11 +144,15 @@ build(
     ],
     qualityGate: true
 )
-Access Control
-1. Jenkins Security
+```
+
+## Access Control
+
+### 1. Jenkins Security
+
 Configure role-based access:
 
-groovy
+```groovy
 build(
     security: [
         roles: [
@@ -142,10 +162,13 @@ build(
         ]
     ]
 )
-2. Pipeline Permissions
+```
+
+### 2. Pipeline Permissions
+
 Restrict sensitive operations:
 
-groovy
+```groovy
 build(
     language: 'java',
     permissions: [
@@ -158,11 +181,15 @@ build(
         }
     ]
 )
-Compliance and Auditing
-1. Audit Logging
+```
+
+## Compliance and Auditing
+
+### 1. Audit Logging
+
 Enable comprehensive logging:
 
-groovy
+```groovy
 build(
     language: 'java',
     auditing: [
@@ -177,10 +204,13 @@ build(
         retention: '90d'
     ]
 )
-2. Compliance Checks
+```
+
+### 2. Compliance Checks
+
 Implement compliance validation:
 
-groovy
+```groovy
 build(
     language: 'java',
     compliance: [
@@ -196,11 +226,15 @@ build(
         ]
     ]
 )
-Secure Deployment
-1. Kubernetes Security
+```
+
+## Secure Deployment
+
+### 1. Kubernetes Security
+
 Secure Kubernetes deployments:
 
-groovy
+```groovy
 deploy(
     environment: 'prod',
     platform: 'kubernetes',
@@ -216,10 +250,13 @@ deploy(
         ]
     ]
 )
-2. Infrastructure Security
+```
+
+### 2. Infrastructure Security
+
 Secure infrastructure components:
 
-groovy
+```groovy
 build(
     language: 'java',
     infrastructure: [
@@ -234,11 +271,15 @@ build(
         ]
     ]
 )
-Incident Response
-1. Security Incident Handling
+```
+
+## Incident Response
+
+### 1. Security Incident Handling
+
 Implement incident response procedures:
 
-groovy
+```groovy
 build(
     language: 'java',
     incidentResponse: [
@@ -252,10 +293,13 @@ build(
         ]
     ]
 )
-2. Emergency Procedures
+```
+
+### 2. Emergency Procedures
+
 Emergency rollback and containment:
 
-groovy
+```groovy
 try {
     deploy(environment: 'prod')
 } catch (SecurityException e) {
@@ -267,11 +311,15 @@ try {
     rollback(environment: 'prod')
     error "Security incident detected and contained"
 }
-Security Testing
-1. Automated Security Tests
+```
+
+## Security Testing
+
+### 1. Automated Security Tests
+
 Integrate security testing:
 
-groovy
+```groovy
 build(
     language: 'java',
     securityTesting: [
@@ -281,10 +329,13 @@ build(
         sca: true        // Software Composition Analysis
     ]
 )
-2. Penetration Testing
+```
+
+### 2. Penetration Testing
+
 Schedule and integrate pen tests:
 
-groovy
+```groovy
 build(
     language: 'java',
     penetrationTesting: [
@@ -296,11 +347,15 @@ build(
         reporting: true
     ]
 )
-Training and Awareness
-1. Security Training
+```
+
+## Training and Awareness
+
+### 1. Security Training
+
 Promote security awareness:
 
-groovy
+```groovy
 build(
     language: 'java',
     training: [
@@ -313,10 +368,13 @@ build(
         ]
     ]
 )
-2. Security Champions
+```
+
+### 2. Security Champions
+
 Establish security champion program:
 
-groovy
+```groovy
 build(
     language: 'java',
     securityChampions: [
@@ -329,11 +387,15 @@ build(
         ]
     ]
 )
-Continuous Security Monitoring
-1. Real-time Monitoring
+```
+
+## Continuous Security Monitoring
+
+### 1. Real-time Monitoring
+
 Monitor security events in real-time:
 
-groovy
+```groovy
 build(
     language: 'java',
     monitoring: [
@@ -346,10 +408,13 @@ build(
         dashboard: true
     ]
 )
-2. Security Metrics
+```
+
+### 2. Security Metrics
+
 Track and report security metrics:
 
-groovy
+```groovy
 build(
     language: 'java',
     metrics: [
@@ -368,4 +433,6 @@ build(
         ]
     ]
 )
+```
+
 By following this security guide, you'll establish a robust security posture for your CI/CD pipelines, protecting your applications and infrastructure from potential threats.
