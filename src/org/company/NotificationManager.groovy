@@ -21,12 +21,12 @@ class NotificationManager implements Serializable {
         ]
         
         def message = """
-🚀 Build Started
-Job: ${config.jobName}
-Build: #${config.buildNumber}
-Branch: ${config.branch}
-Commit: ${config.commit.take(8)}
-Triggered by: ${config.triggeredBy}
+            🚀 Build Started
+            Job: ${config.jobName}
+            Build: #${config.buildNumber}
+            Branch: ${config.branch}
+            Commit: ${config.commit.take(8)}
+            Triggered by: ${config.triggeredBy}
         """.stripIndent().trim()
         
         sendNotifications(config.channels, message, 'started')
@@ -42,11 +42,11 @@ Triggered by: ${config.triggeredBy}
         ]
         
         def message = """
-✅ Build Successful
-Job: ${config.jobName}
-Build: #${config.buildNumber}
-Duration: ${config.duration}
-Details: ${config.buildUrl}
+            ✅ Build Successful
+            Job: ${config.jobName}
+            Build: #${config.buildNumber}
+            Duration: ${config.duration}
+            Details: ${config.buildUrl}
         """.stripIndent().trim()
         
         sendNotifications(config.channels, message, 'success')
@@ -62,11 +62,11 @@ Details: ${config.buildUrl}
         ]
         
         def message = """
-❌ Build Failed
-Job: ${config.jobName}
-Build: #${config.buildNumber}
-Error: ${config.error}
-Details: ${config.buildUrl}
+            ❌ Build Failed
+            Job: ${config.jobName}
+            Build: #${config.buildNumber}
+            Error: ${config.error}
+            Details: ${config.buildUrl}
         """.stripIndent().trim()
         
         sendNotifications(config.channels, message, 'failure')
@@ -85,11 +85,11 @@ Details: ${config.buildUrl}
         def emoji = getStatusEmoji(config.status)
         
         def message = """
-${emoji} Deployment ${config.status.toUpperCase()}
-Environment: ${config.environment}
-Application: ${config.jobName}
-Version: ${config.version}
-Build: #${config.buildNumber}
+            ${emoji} Deployment ${config.status.toUpperCase()}
+            Environment: ${config.environment}
+            Application: ${config.jobName}
+            Version: ${config.version}
+            Build: #${config.buildNumber}
         """.stripIndent().trim()
         
         sendNotifications(config.channels, message, config.status)
@@ -107,10 +107,10 @@ Build: #${config.buildNumber}
         def emoji = getStatusEmoji(config.status)
         
         def message = """
-${emoji} Quality Gate ${config.status.toUpperCase()}
-Project: ${config.project}
-Status: ${config.status}
-Details: ${config.url}
+            ${emoji} Quality Gate ${config.status.toUpperCase()}
+            Project: ${config.project}
+            Status: ${config.status}
+            Details: ${config.url}
         """.stripIndent().trim()
         
         // Add metrics if available
